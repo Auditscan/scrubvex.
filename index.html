@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Security Audit – gionialmique.com</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ========== CLIENT VARIABLES – EDIT HERE ========== */
+        :root {
+            --client-name: "gionialmique.com";
+            --client-domain: "gionialmique.com";
+            --whatsapp-number: "19082575524";     /* only digits, no + or spaces */
+            --risk-level: "High Security Risk";
+            --risk-percent: 92%;
+            --blacklist-count: "20 blacklisted detected";
+            --ip-address: "23.227.38.66";
+            --cdn: "CloudFlare";
+            --platform: "cloudflare";
+            --redirect-url: "https://gionialmique.com/";
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f2f2f2;
+            color: #1e2a3a;
+            line-height: 1.5;
+        }
+
+        .urgent-banner {
+            background: #d9534f;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            background: #f8f9fa;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #2c3e50;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: #e9ecef; }
+
+        .client-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .status-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .status-icon {
+            font-size: 2.2rem;
+            flex-shrink: 0;
+        }
+        .icon-red { color: #d9534f; }
+        .icon-yellow { color: #f0ad4e; }
+
+        .btn-yellow {
+            background: #f0ad4e;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn-yellow:hover { background: #e69a2e; }
+
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 24px;
+            font-size: 0.9rem;
+        }
+        .info-box p { margin: 8px 0; }
+
+        /* Risk meter */
+        .meter-bg {
+            background: #e9ecef;
+            border-radius: 20px;
+            height: 12px;
+            position: relative;
+            margin: 20px 0;
+        }
+        .meter-fill {
+            background: linear-gradient(90deg, #5cb85c 0%, #f0ad4e 50%, #d9534f 100%);
+            border-radius: 20px;
+            height: 100%;
+            width: 100%;
+        }
+        .meter-pointer {
+            position: absolute;
+            top: -12px;
+            left: var(--risk-percent, 92%);
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 16px solid #1e2a3a;
+        }
+        .risk-label {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+        .risk-desc {
+            font-size: 0.85rem;
+            color: #5a6e7c;
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        /* Malware list */
+        .check-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .check-list li {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf2f7;
+            gap: 12px;
+        }
+        .risk-badge {
+            margin-left: auto;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .risk-high { color: #d9534f; }
+        .risk-medium { color: #f0ad4e; }
+
+        /* Hardening section */
+        .hardening-header {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .hardening-border-box {
+            border-left: 12px solid #f0ad4e;
+            padding-left: 20px;
+        }
+        .hardening-item {
+            margin-bottom: 28px;
+        }
+        .hardening-item .teal {
+            color: #007681;
+            font-weight: 500;
+        }
+        .affected-url {
+            display: block;
+            word-break: break-all;
+            font-size: 0.8rem;
+            color: #6c7a89;
+            margin-top: 6px;
+        }
+
+        /* Buttons */
+        .btn-full {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        .btn-whatsapp:hover { background: #1da059; }
+        .btn-pdf {
+            background: #2c3e50;
+            color: white;
+        }
+        .btn-pdf:hover { background: #1e2a3a; }
+
+        /* Print styles */
+        @media print {
+            .urgent-banner, .back-btn, .btn-full, .btn-yellow, .btn-pdf, .btn-whatsapp {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+            .header {
+                background: none;
+                box-shadow: none;
+                padding-left: 0;
+            }
+            a {
+                text-decoration: none;
+                color: black;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+            .status-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="urgent-banner">
+    <i class="fas fa-exclamation-triangle"></i> Security Alert: Action Required
+</div>
+
+<div class="container">
+    <div class="header">
+        <a href="https://wa.me/19082575524" class="back-btn" id="whatsappBackBtn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="client-name">gionialmique.com</span>
+    </div>
+
+    <div class="card">
+        <div class="status-row">
+            <i class="fas fa-exclamation-triangle status-icon icon-yellow"></i>
+            <div>
+                <h3>Site Issue</h3>
+                <p>400 Bad Request</p>
+            </div>
+        </div>
+        <div class="status-row">
+            <i class="fas fa-exclamation-triangle status-icon icon-red"></i>
+            <div>
+                <h3>Site is blacklisted</h3>
+                <p id="blacklistCount">20 blacklisted detected</p>
+            </div>
+        </div>
+        <a href="#" class="btn-yellow" id="requestReviewBtn">Request Review</a>
+
+        <div class="info-box">
+            <p><strong>Redirects to:</strong> <span id="redirectUrl">https://gionialmique.com/</span></p>
+            <p><strong>IP address:</strong> <span id="ipAddress">23.227.38.66</span></p>
+            <p><strong>CDN:</strong> <span id="cdnValue">CloudFlare</span></p>
+            <p><strong>Powered by:</strong> <span id="platformValue">cloudflare</span></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="meter-bg">
+            <div class="meter-fill"></div>
+            <div class="meter-pointer" id="meterPointer"></div>
+        </div>
+        <div class="risk-label" id="riskLabel">High Security Risk</div>
+        <div class="risk-desc" id="riskDescription">
+            Our automated scan found several issues on some pages of your website. If you believe your website has been hacked, reach out to a <a href="#" class="specialist-link" id="specialistLink">specialist</a> for a complete scan and guaranteed malware removal.
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Website Malware & Security</h3>
+        <ul class="check-list">
+            <li><i class="fas fa-exclamation-circle icon-red"></i> malware detected by scan <span class="risk-badge risk-high">(High Risk)</span></li>
+            <li><i class="fas fa-exclamation-triangle icon-yellow"></i> injected spam detected <span class="risk-badge risk-medium">(Medium Risk)</span></li>
+            <li><i class="fas fa-exclamation-circle icon-red"></i> defacements detected <span class="risk-badge risk-high">(High Risk)</span></li>
+        </ul>
+        <div style="text-align: center; margin-top: 24px;">
+            <i class="fas fa-times-circle icon-red" style="font-size: 2.2rem; margin-bottom: 8px;"></i>
+            <h3>Website Firewall</h3>
+            <p>No Firewall Detected</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="hardening-header">Hardening<br>Improvements</h2>
+        <div class="hardening-border-box">
+            <h4>Security Headers</h4>
+            <div class="hardening-item">
+                Missing security header for <span class="teal">ClickJacking Protection</span>.
+                Alternatively, you can use <span class="teal">Content-Security-Policy: frame-ancestors 'none'</span>.
+                <span class="affected-url">https://gionialmique.com/customer_authentication/redirect?locale=en®ion_country=US</span>
+            </div>
+            <div class="hardening-item">
+                Missing security header to <span class="teal">prevent Content Type sniffing</span>.
+                <span class="affected-url">https://gionialmique.com/customer_authentication/redirect?locale=en®ion_country=US</span>
+            </div>
+            <div class="hardening-item">
+                Missing <span class="teal">Strict-Transport-Security security header</span>.
+                <span class="affected-url">https://gionialmique.com/customer_authentication/redirect?locale=en®ion_country=US</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+        <a href="#" class="btn-full btn-whatsapp" id="whatsappMainBtn">
+            <i class="fab fa-whatsapp"></i> MESSAGE SPECIALIST ON WHATSAPP
+        </a>
+        <a href="javascript:window.print()" class="btn-full btn-pdf">
+            <i class="fas fa-file-pdf"></i> SAVE REPORT AS PDF
+        </a>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ========== CONFIG – CHANGE THESE FOR EACH CLIENT ==========
+        const config = {
+            clientName: "scrubvex.in",
+            clientDomain: "scrubvex.in",
+            whatsappNumber: "19082575524",        // digits only
+            riskLevel: "High Security Risk",
+            riskPercent: 92,                      // 0-100
+            blacklistCount: "20 blacklisted detected",
+            ipAddress: "23.227.38.66",
+            cdn: "CloudFlare",
+            platform: "cloudflare",
+            redirectUrl: "https://scrubvex.in/"
+        };
+
+        // Apply to DOM
+        document.querySelectorAll('.client-name').forEach(el => el.textContent = config.clientName);
+        const blacklistSpan = document.getElementById('blacklistCount');
+        if (blacklistSpan) blacklistSpan.textContent = config.blacklistCount;
+        const ipSpan = document.getElementById('ipAddress');
+        if (ipSpan) ipSpan.textContent = config.ipAddress;
+        const cdnSpan = document.getElementById('cdnValue');
+        if (cdnSpan) cdnSpan.textContent = config.cdn;
+        const platformSpan = document.getElementById('platformValue');
+        if (platformSpan) platformSpan.textContent = config.platform;
+        const redirectSpan = document.getElementById('redirectUrl');
+        if (redirectSpan) redirectSpan.textContent = config.redirectUrl;
+
+        const riskLabelSpan = document.getElementById('riskLabel');
+        if (riskLabelSpan) riskLabelSpan.textContent = config.riskLevel;
+
+        // Risk meter pointer position
+        const pointer = document.getElementById('meterPointer');
+        if (pointer) {
+            const percent = Math.min(100, Math.max(0, config.riskPercent));
+            pointer.style.left = percent + '%';
+        }
+
+        // WhatsApp link generator
+        function getWhatsAppLink() {
+            return `https://wa.me/${config.whatsappNumber.replace(/\D/g, '')}`;
+        }
+
+        // Update all WhatsApp buttons and links
+        const whatsappElements = [
+            document.getElementById('whatsappBackBtn'),
+            document.getElementById('whatsappMainBtn'),
+            document.getElementById('requestReviewBtn'),
+            document.getElementById('specialistLink')
+        ];
+        const waLink = getWhatsAppLink();
+        whatsappElements.forEach(el => {
+            if (el && el.tagName === 'A') el.href = waLink;
+        });
+    })();
+</script>
+
+</body>
+</html>
